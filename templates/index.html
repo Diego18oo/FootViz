@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FootViz</title>
+    <link href="{{ url_for('static', filename='styles/style.css') }}" rel="stylesheet" />
+</head>
+
+<body>
+    <h1>FootViz</h1>
+  
+    <form action ="/tabla">
+        <label for="liga">Selecciona una liga:</label>
+        <select id = "liga" name = "liga">
+            <option value = "Liga MX">Liga MX</option>
+            <option value = "Premier League">Premier League</option>
+            <option value = "La Liga">Premier League</option>
+
+
+        </select>
+        <button type="submit">Ingresa</button>
+
+    </form>
+    <table border="2px" width="300">
+        <thead>
+            <tr>
+                <th>#</th> 
+                <th>Club</th>
+                <th>PJ</th>
+                <th>V</th>
+                <th>E</th>
+                <th>D</th>
+                <th>DF</th>
+                <th>PTS</th>
+             </tr>
+        </thead>
+        <tbody>
+            {% for equipo in tabla %}
+            <tr>
+                <td>{{ equipo.posicion }}</td>
+                <td>{{ equipo.nombre }}</td>
+                <td>{{ equipo.pj }}</td>
+                <td>{{ equipo.v }}</td>
+                <td>{{ equipo.e }}</td>
+                <td>{{ equipo.d }}</td>
+                <td>{{ equipo.df }}</td>
+                <td>{{ equipo.pts }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+
+        
+    </table>
+    
+</body>
+
+</html>
