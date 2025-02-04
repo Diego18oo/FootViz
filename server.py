@@ -2,6 +2,9 @@ from flask import Flask, render_template, request
 from scrapear import sacar_tabla
 from waitress import serve
 
+#export HOME=/c/Users/amrr1
+
+
 app = Flask(__name__)
 
 @app.route('/')
