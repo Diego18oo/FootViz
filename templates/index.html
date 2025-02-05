@@ -33,21 +33,23 @@
                 <th>V</th>
                 <th>E</th>
                 <th>D</th>
-                <th>DF</th>
+                <th>GA</th>
+                <th>GC</th>
                 <th>PTS</th>
              </tr>
         </thead>
         <tbody>
-            {% for equipo in tabla %}
+            {% for row in tabla %}
             <tr>
-                <td>{{ equipo.posicion }}</td>
-                <td>{{ equipo.nombre }}</td>
-                <td>{{ equipo.pj }}</td>
-                <td>{{ equipo.v }}</td>
-                <td>{{ equipo.e }}</td>
-                <td>{{ equipo.d }}</td>
-                <td>{{ equipo.df }}</td>
-                <td>{{ equipo.pts }}</td>
+                <td>{{ row.rk }}</td>
+                <td>{{ row.club }}</td>
+                <td>{{ row.pj }}</td>
+                <td>{{ row.v }}</td>
+                <td>{{ row.e }}</td>
+                <td>{{ row.d }}</td>
+                <td>{{ row.ga }}</td>
+                <td>{{ row.gc }}</td>
+                <td>{{ row.pts }}</td>
             </tr>
             {% endfor %}
         </tbody>
