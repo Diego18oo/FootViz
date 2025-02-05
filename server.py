@@ -1,9 +1,16 @@
 from flask import Flask, render_template, request
 from scrapear import sacar_tabla
 from waitress import serve
+import requests
 
 #export HOME=/c/Users/amrr1
-
+@app.route('/test-sofascore')
+def test_sofascore():
+    try:
+        response = requests.get("https://www.sofascore.com")
+        return f"Status Code: {response.status_code}", response.status_code
+    except Exception as e:
+        return f"Error: {e}", 500
 
 app = Flask(__name__)
 
