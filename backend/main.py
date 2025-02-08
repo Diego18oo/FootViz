@@ -2,6 +2,7 @@ from flask import jsonify, render_template, request
 from config import app, db
 from models import Equipos
 from scraper import sacar_tabla
+#export HOME=/c/Users/amrr1
 
 @app.route('/<string:liga>', methods=["GET"])
 def tabla_liga(liga):
