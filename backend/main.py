@@ -1,22 +1,23 @@
 import os
 import requests
 
-# Obtén el token desde la variable de entorno
 GITHUB_TOKEN = os.environ.get('GITHUB_TOKEN')
+if not GITHUB_TOKEN:
+    print("GITHUB_TOKEN no está configurado")  # Esto debería aparecer en los logs si no se encuentra el token
+else:
+    print("GITHUB_TOKEN encontrado")  # Confirmación (no imprimas el valor real)
+
+# ... Código del parche ...
 if GITHUB_TOKEN:
-    # Guarda la función original
     original_get = requests.get
 
     def token_get(*args, **kwargs):
-        # Agregar o actualizar el header Authorization
         headers = kwargs.get("headers", {})
         headers["Authorization"] = f"token {GITHUB_TOKEN}"
         kwargs["headers"] = headers
         return original_get(*args, **kwargs)
 
-    # Parchamos requests.get globalmente
     requests.get = token_get
-
 
 from flask import jsonify, render_template, request
 from config import app, db
