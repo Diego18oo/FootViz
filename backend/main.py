@@ -1,5 +1,9 @@
 import os
 import httpx
+import time
+# Variable global para la última actualización (en segundos)
+last_update = 0
+CACHE_TIMEOUT = 15 * 60  # 15 minutos
 
 GITHUB_TOKEN = os.environ.get('GITHUB_TOKEN')
 if not GITHUB_TOKEN:
@@ -93,12 +97,15 @@ def tabla_liga(liga):
 
 @app.route('/', methods=["GET"])
 def index():
-    liga = 'EPL'  # Obtiene la liga del parámetro de la URL
-    if liga:
-        # 1. Eliminar registros anteriores para esa liga
+    global last_update
+    liga = request.args.get('liga', 'EPL')
+    
+    # Si han pasado menos de 15 minutos desde la última actualización, no volver a hacer scraping
+    if time.time() - last_update > CACHE_TIMEOUT:
+        # Actualizamos la tabla para la liga
         Equipos.query.filter_by(liga=liga).delete()
         db.session.commit()
-        # 2. Obtener datos nuevos y agregarlos a la BD
+        
         nuevos_datos = sacar_tabla(liga)
         for equipo in nuevos_datos:
             nuevo_equipo = Equipos(
@@ -111,11 +118,12 @@ def index():
                 goles_anotados=equipo["ga"],
                 goles_concedidos=equipo["gc"],
                 puntos=equipo["pts"],
-                liga=liga  # Asignar la liga
+                liga=liga
             )
             db.session.add(nuevo_equipo)
-        db.session.commit()  # Confirmar inserción
-    # 3. Consultar solo los registros de la liga 'EPL'
+        db.session.commit()
+        last_update = time.time()
+    # Consultar los datos almacenados
     tabla = Equipos.query.filter_by(liga=liga).order_by(Equipos.posicion).all()
     return render_template('index.html', tabla=tabla, liga=liga)
 
