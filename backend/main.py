@@ -1,60 +1,35 @@
 import os
-import requests
+import httpx
 
 GITHUB_TOKEN = os.environ.get('GITHUB_TOKEN')
 if not GITHUB_TOKEN:
     print("GITHUB_TOKEN no está configurado")  # Esto debería aparecer en los logs si no se encuentra el token
 else:
-    print("GITHUB_TOKEN encontrado")  # Confirmación (no imprimas el valor real)
+    print("GITHUB_TOKEN encontrado (httpx)")  # Confirmación (no imprimas el valor real)
 
-# ... Código del parche ...
-if GITHUB_TOKEN:
-    original_get = requests.get
-
-    def token_get(*args, **kwargs):
+    # Parche para httpx.get
+    original_httpx_get = httpx.get
+    def token_httpx_get(url, **kwargs):
         headers = kwargs.get("headers", {})
-        headers["Authorization"] = f"token {GITHUB_TOKEN}"
+        # Agregar la cabecera Authorization si no existe
+        if "Authorization" not in headers:
+            headers["Authorization"] = f"token {GITHUB_TOKEN}"
         kwargs["headers"] = headers
-        return original_get(*args, **kwargs)
+        return original_httpx_get(url, **kwargs)
 
-    requests.get = token_get
+    httpx.get = token_httpx_get
 
-    # Parcheo de requests.Session.get
-    original_session_get = requests.Session.get
+    # Parche para httpx.stream
+    original_httpx_stream = httpx.stream
 
-    def token_session_get(self, *args, **kwargs):
+    def token_httpx_stream(*args, **kwargs):
         headers = kwargs.get("headers", {})
-        headers["Authorization"] = f"token {GITHUB_TOKEN}"
+        if "Authorization" not in headers:
+            headers["Authorization"] = f"token {GITHUB_TOKEN}"
         kwargs["headers"] = headers
-        return original_session_get(self, *args, **kwargs)
+        return original_httpx_stream(*args, **kwargs)
 
-    requests.Session.get = token_session_get
-
-    # Parcheo de requests.request
-    original_request = requests.request
-
-    def token_request(method, url, **kwargs):
-        headers = kwargs.get("headers", {})
-        headers["Authorization"] = f"token {GITHUB_TOKEN}"
-        kwargs["headers"] = headers
-        return original_request(method, url, **kwargs)
-
-    requests.request = token_request
-
-# Ahora, parcheamos urllib3.PoolManager.urlopen para cubrir llamadas a nivel inferior
-import urllib3
-original_urlopen = urllib3.PoolManager.urlopen
-
-def token_urlopen(self, method, url, body=None, headers=None, **kwargs):
-    if headers is None:
-        headers = {}
-    if "Authorization" not in headers and GITHUB_TOKEN:
-        headers["Authorization"] = f"token {GITHUB_TOKEN}"
-    print(f"Making {method} request to {url} with headers: {headers}")  # solo para debug
-
-    return original_urlopen(self, method, url, body=body, headers=headers, **kwargs)
-
-urllib3.PoolManager.urlopen = token_urlopen
+    httpx.stream = token_httpx_stream
 
 from flask import jsonify, render_template, request
 from config import app, db
