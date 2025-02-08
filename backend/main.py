@@ -39,6 +39,10 @@ import requests
 
 #export HOME=/c/Users/amrr1
 
+@app.route('/health', methods=["GET"])
+def health():
+    return "OK", 200
+
 @app.route('/test-sofascore')
 def test_sofascore():
     try:
