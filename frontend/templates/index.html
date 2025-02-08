@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FootViz - {{ liga }}</title>
+    <link href="{{ url_for('static', filename='styles/style.css') }}" rel="stylesheet" />
+</head>
+<body>
+    <h1>Tabla 2024/25 - {{ liga }}</h1>
+    
+    <!-- Formulario con redirección automática -->
+    <form id="ligaForm">
+        <label for="liga">Selecciona una liga:</label>
+        <select id="liga" name="liga">
+            <option value="epl" {% if liga == 'EPL' %}selected{% endif %}>EPL</option>
+            <option value="laliga" {% if liga == 'La Liga' %}selected{% endif %}>La Liga</option>
+            <option value="ligue1" {% if liga == 'Ligue 1' %}selected{% endif %}>Ligue 1</option>
+            <option value="seriea" {% if liga == 'Serie A' %}selected{% endif %}>Serie A</option>
+            <option value="bundesliga" {% if liga == 'Bundesliga' %}selected{% endif %}>Bundesliga</option>
+        </select>
+        <button type="button" onclick="redirectLiga()">Ingresar</button>
+    </form>
+    
+    <table border="2px" width="300">
+        <thead>
+            <tr>
+                <th>#</th> 
+                <th>Club</th>
+                <th>PJ</th>
+                <th>V</th>
+                <th>E</th>
+                <th>D</th>
+                <th>GA</th>
+                <th>GC</th>
+                <th>PTS</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for row in tabla %}
+            <tr>
+                <td>{{ row.posicion }}</td>
+                <td>{{ row.nombre }}</td>
+                <td>{{ row.partidos_jugados }}</td>
+                <td>{{ row.victorias }}</td>
+                <td>{{ row.empates }}</td>
+                <td>{{ row.derrotas }}</td>
+                <td>{{ row.goles_anotados }}</td>
+                <td>{{ row.goles_concedidos }}</td>
+                <td>{{ row.puntos }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    
+    <script>
+      function redirectLiga() {
+          var select = document.getElementById('liga');
+          var ligaSlug = select.value;  // Obtiene el slug seleccionado (por ejemplo, "laliga")
+          window.location.href = '/' + ligaSlug;
+      }
+    </script>
+</body>
+</html>

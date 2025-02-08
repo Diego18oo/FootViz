@@ -1,21 +1,9 @@
-import requests
-import http.client
-import gzip
-import json
 import ScraperFC as sfc
-from flask import Flask, render_template, request, jsonify
 from pprint import pprint
-from io import BytesIO
-import requests
+from models import Equipos
+from config import db
+from config import app  # Importa el objeto app para obtener el contexto
 
-# Parchear requests para registrar todas las llamadas
-original_get = requests.get
-
-def custom_get(*args, **kwargs):
-    print(f"Solicitud GET a: {args[0]}")
-    return original_get(*args, **kwargs)
-
-requests.get = custom_get
 
 fbref = sfc.FBref()
 
@@ -31,21 +19,24 @@ def sacar_tabla(liga):
             "club": row["Squad"],
             "pj": row["MP"],
             "v": row["W"],
-            "e": row["D"],
+            "e": row["D"],  
             "d": row["L"],
             "ga": row["GF"],
             "gc": row["GA"],
-            "pts": row["Pts"]
+            "pts": row["Pts"],
+            "liga": liga  # Agregamos la liga directamente
+
         }
         for _, row in tabla.iterrows()
     ]
+    
     return tabla_formateada
 
 
 if __name__ == "__main__":
     print ("\nVer Ligas \n")
-    liga = input("\nIngresa una liga:")
-    tabla_formateada = sacar_tabla(liga)
-    print("\n")
-    pprint(tabla_formateada)
-
+    with app.app_context():
+        liga = input("\nIngresa una liga:")
+        tabla_formateada = sacar_tabla(liga)
+        print("\n")
+        pprint(tabla_formateada)
