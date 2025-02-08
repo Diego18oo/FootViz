@@ -2,7 +2,17 @@ from flask import jsonify, render_template, request
 from config import app, db
 from models import Equipos
 from scraper import sacar_tabla
+import requests
+
 #export HOME=/c/Users/amrr1
+
+@app.route('/test-sofascore')
+def test_sofascore():
+    try:
+        response = requests.get("https://www.sofascore.com")
+        return f"Status Code: {response.status_code}", response.status_code
+    except Exception as e:
+        return f"Error: {e}", 500
 
 @app.route('/<string:liga>', methods=["GET"])
 def tabla_liga(liga):
