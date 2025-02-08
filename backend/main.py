@@ -35,7 +35,7 @@ else:
 
     httpx.stream = token_httpx_stream
 
-from flask import jsonify, render_template, request
+from flask import jsonify, render_template, request, make_response
 from config import app, db
 from models import Equipos
 from scraper import sacar_tabla
@@ -98,32 +98,39 @@ def tabla_liga(liga):
 @app.route('/', methods=["GET"])
 def index():
     global last_update
+     # Si la solicitud es HEAD, no queremos ejecutar scraping (solo devolvemos 200 OK)
+    if request.method == "HEAD":
+        return make_response("", 200)
     liga = request.args.get('liga', 'EPL')
     
     # Si han pasado menos de 15 minutos desde la última actualización, no volver a hacer scraping
     if time.time() - last_update > CACHE_TIMEOUT:
-        # Actualizamos la tabla para la liga
-        Equipos.query.filter_by(liga=liga).delete()
-        db.session.commit()
-        
-        nuevos_datos = sacar_tabla(liga)
-        for equipo in nuevos_datos:
-            nuevo_equipo = Equipos(
-                posicion=equipo["rk"],
-                nombre=equipo["club"],
-                partidos_jugados=equipo["pj"],
-                victorias=equipo["v"],
-                empates=equipo["e"],
-                derrotas=equipo["d"],
-                goles_anotados=equipo["ga"],
-                goles_concedidos=equipo["gc"],
-                puntos=equipo["pts"],
-                liga=liga
-            )
-            db.session.add(nuevo_equipo)
-        db.session.commit()
-        last_update = time.time()
-    # Consultar los datos almacenados
+        try:
+            # Borrar registros antiguos para la liga
+            Equipos.query.filter_by(liga=liga).delete()
+            db.session.commit()
+            
+            # Ejecutar el scraping
+            nuevos_datos = sacar_tabla(liga)
+            for equipo in nuevos_datos:
+                nuevo_equipo = Equipos(
+                    posicion=equipo["rk"],
+                    nombre=equipo["club"],
+                    partidos_jugados=equipo["pj"],
+                    victorias=equipo["v"],
+                    empates=equipo["e"],
+                    derrotas=equipo["d"],
+                    goles_anotados=equipo["ga"],
+                    goles_concedidos=equipo["gc"],
+                    puntos=equipo["pts"],
+                    liga=liga
+                )
+                db.session.add(nuevo_equipo)
+            db.session.commit()
+            last_update = time.time()
+        except Exception as e:
+            # Podrías registrar el error y/o devolver una respuesta con error
+            return f"Error en scraping: {e}", 500
     tabla = Equipos.query.filter_by(liga=liga).order_by(Equipos.posicion).all()
     return render_template('index.html', tabla=tabla, liga=liga)
 
