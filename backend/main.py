@@ -19,6 +19,17 @@ if GITHUB_TOKEN:
 
     requests.get = token_get
 
+    # Parcheo de requests.Session.get
+    original_session_get = requests.Session.get
+
+    def token_session_get(self, *args, **kwargs):
+        headers = kwargs.get("headers", {})
+        headers["Authorization"] = f"token {GITHUB_TOKEN}"
+        kwargs["headers"] = headers
+        return original_session_get(self, *args, **kwargs)
+
+    requests.Session.get = token_session_get
+
 from flask import jsonify, render_template, request
 from config import app, db
 from models import Equipos
