@@ -30,6 +30,32 @@ if GITHUB_TOKEN:
 
     requests.Session.get = token_session_get
 
+    # Parcheo de requests.request
+    original_request = requests.request
+
+    def token_request(method, url, **kwargs):
+        headers = kwargs.get("headers", {})
+        headers["Authorization"] = f"token {GITHUB_TOKEN}"
+        kwargs["headers"] = headers
+        return original_request(method, url, **kwargs)
+
+    requests.request = token_request
+
+# Ahora, parcheamos urllib3.PoolManager.urlopen para cubrir llamadas a nivel inferior
+import urllib3
+original_urlopen = urllib3.PoolManager.urlopen
+
+def token_urlopen(self, method, url, body=None, headers=None, **kwargs):
+    if headers is None:
+        headers = {}
+    if "Authorization" not in headers and GITHUB_TOKEN:
+        headers["Authorization"] = f"token {GITHUB_TOKEN}"
+    print(f"Making {method} request to {url} with headers: {headers}")  # solo para debug
+
+    return original_urlopen(self, method, url, body=body, headers=headers, **kwargs)
+
+urllib3.PoolManager.urlopen = token_urlopen
+
 from flask import jsonify, render_template, request
 from config import app, db
 from models import Equipos
