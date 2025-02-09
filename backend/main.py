@@ -39,6 +39,7 @@ from flask import jsonify, render_template, request, make_response
 from config import app, db
 from models import Equipos
 from scraper import sacar_tabla
+from waitress import serve
 import requests
 
 #export HOME=/c/Users/amrr1
@@ -257,4 +258,4 @@ def tabla_bundes():
 if __name__ == "__main__":
     with app.app_context():
         db.create_all()
-    app.run(debug=False)
+    serve(app, host="0.0.0.0", port = 8000)
