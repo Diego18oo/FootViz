@@ -77,7 +77,7 @@ def tabla_liga(liga):
     nuevos_datos = sacar_tabla(liga_seleccionada)
     for equipo in nuevos_datos:
         nuevo_equipo = Equipos(
-            posicion=equipo["rk"],
+            posicion=equipo["#"],
             nombre=equipo["club"],
             partidos_jugados=equipo["pj"],
             victorias=equipo["v"],
@@ -115,7 +115,7 @@ def index():
             nuevos_datos = sacar_tabla(liga)
             for equipo in nuevos_datos:
                 nuevo_equipo = Equipos(
-                    posicion=equipo["rk"],
+                    posicion=equipo["#"],
                     nombre=equipo["club"],
                     partidos_jugados=equipo["pj"],
                     victorias=equipo["v"],
